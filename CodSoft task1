@@ -1,0 +1,38 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
+
+# Load the Titanic dataset
+data = pd.read_csv('/content/Titanic-Dataset.csv')
+
+# Drop unnecessary columns
+data = data.drop(['PassengerId', 'Name', 'Ticket', 'Cabin'], axis=1)
+
+# Convert categorical variables to numerical variables
+data['Sex'] = data['Sex'].map({'male': 0, 'female': 1})
+data['Embarked'] = data['Embarked'].map({'C': 0, 'Q': 1, 'S': 2})
+
+# Impute missing values using the mean
+imputer = SimpleImputer(strategy='mean')
+data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
+
+
+# Train a random forest classifier
+model = RandomForestClassifier(n_estimators=100)
+model.fit(data.drop('Survived', axis=1), data['Survived'])
+
+# Get input values from user
+Pclass = int(input("Enter passenger class (1, 2, or 3): "))
+Sex = int(input("Enter passenger gender (0 for male, 1 for female): "))
+Age = float(input("Enter passenger age: "))
+SibSp = int(input("Enter number of siblings/spouses aboard: "))
+Parch = int(input("Enter number of parents/children aboard: "))
+Fare = float(input("Enter ticket fare: "))
+Embarked = int(input("Enter port of embarkation (0 for Cherbourg, 1 for Queenstown, 2 for Southampton): "))
+
+# Make a prediction
+prediction = model.predict([[Pclass, Sex, Age, SibSp, Parch, Fare, Embarked]])
+
+# Print the prediction
+print("Survival prediction: ", "Survived" if prediction == 1 else "Did not survive")
